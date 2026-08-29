@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { joinAt, movePages, outputs, removePages, rotatePages, splitBefore } from '../src/model/pages'
+import { joinAt, movePages, nameOutput, outputs, removePages, rotatePages, splitBefore } from '../src/model/pages'
 import type { PageRef } from '../src/model/pages'
 
 const p = (docId: string, page: number, extra: Partial<PageRef> = {}): PageRef =>
@@ -95,5 +95,32 @@ describe('rotatePages', () => {
   test('keeps rotation between 0 and 359 degrees', () => {
     expect(rotatePages([p('a', 1, { rot: 0 })], [0], -90)[0].rot).toBe(270)
     expect(rotatePages([p('a', 1, { rot: 270 })], [0], 90)[0].rot).toBe(0)
+  })
+})
+
+describe('nameOutput', () => {
+  test('gives the output a name of its own', () => {
+    const pages = nameOutput([p('a', 1), p('a', 2, { cut: true })], 1, 'appendix.pdf')
+    expect(outputs(pages).map(o => o.name)).toEqual([undefined, 'appendix.pdf'])
+  })
+
+  test('names the first output too, which starts without a cut', () => {
+    const pages = nameOutput([p('a', 1), p('a', 2)], 0, 'contract.pdf')
+    expect(outputs(pages)[0].name).toBe('contract.pdf')
+  })
+
+  test('clears the name when it is set to nothing', () => {
+    const named = nameOutput([p('a', 1)], 0, 'contract.pdf')
+    expect(outputs(nameOutput(named, 0, '  '))[0].name).toBeUndefined()
+  })
+
+  test('hands the name to the next page when the named page is removed', () => {
+    const named = nameOutput([p('a', 1), p('a', 2, { cut: true }), p('a', 3)], 1, 'appendix.pdf')
+    expect(outputs(removePages(named, [1])).map(o => o.name)).toEqual([undefined, 'appendix.pdf'])
+  })
+
+  test('drops the name of a page that is dragged out of its output', () => {
+    const named = nameOutput([p('a', 1), p('a', 2, { cut: true }), p('a', 3)], 1, 'appendix.pdf')
+    expect(outputs(movePages(named, [1], 0)).map(o => o.name)).toEqual([undefined])
   })
 })

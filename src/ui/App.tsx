@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { joinAt, movePages, outputs as toOutputs, removePages, rotatePages, splitBefore } from '../model/pages'
+import { joinAt, movePages, nameOutput, outputs as toOutputs, removePages, rotatePages, splitBefore } from '../model/pages'
 import type { PageRef } from '../model/pages'
 import { outputName } from '../model/naming'
 import { loadDocument } from '../pdf/load'
@@ -10,7 +10,8 @@ import { saveBytes } from '../pdf/download'
 import { forget } from '../pdf/thumbs'
 import { applyTheme, initTheme } from '../state/theme'
 import type { Theme } from '../state/theme'
-import { GithubGlyph, IteniumLogo, Mark, MoonGlyph, ScissorsGlyph, SunGlyph } from './glyphs'
+import { GithubGlyph, IteniumLogo, Mark, MoonGlyph, SunGlyph } from './glyphs'
+import { OutputTitle } from './OutputTitle'
 import { PageCard } from './PageCard'
 import { DetailRail } from './DetailRail'
 import { useHistory } from './useHistory'
@@ -221,7 +222,10 @@ export function App() {
             {outputs.map((output, oi) => (
               <section className="output" key={output.start} data-alt={oi % 2}>
                 <div className="band">
-                  <span className="tag"><ScissorsGlyph /> Output {oi + 1}</span>
+                  <OutputTitle
+                    name={outputName(names, output.pages, oi, outputs.length)}
+                    onRename={value => edit(nameOutput(pages, output.start, value), selected)}
+                  />
                   <span className="range">
                     pages {output.start + 1}–{output.start + output.pages.length} · {output.pages.length} pages
                   </span>

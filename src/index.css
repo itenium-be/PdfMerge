@@ -105,9 +105,16 @@ a { color: inherit; }
 .output { border: 1px solid var(--rule-2); border-radius: 10px; overflow: hidden; }
 .output[data-alt='1'] { background: var(--sunk); }
 .output .band { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid var(--rule-2); }
-.output .band .tag { display: inline-flex; align-items: center; gap: 7px; font: 500 10.5px/1 var(--mono);
-  letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-.output .band .tag svg { width: 12px; height: 12px; }
+.output .band .tag { display: inline-flex; align-items: center; gap: 7px; font: 500 12px/1 var(--mono); color: var(--accent); min-width: 0; }
+.output .band .tag > svg { width: 12px; height: 12px; flex: none; }
+.output .band .tag b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.output .band .rename { display: grid; place-items: center; width: 22px; height: 22px; padding: 0; border: 0;
+  background: 0; border-radius: 4px; color: var(--ink-3); opacity: 0; }
+.output .band:hover .rename, .output .band .rename:focus-visible { opacity: 1; }
+.output .band .rename:hover { color: var(--ink); background: var(--surface); }
+.output .band .rename svg { width: 12px; height: 12px; }
+.output .band .rename-field { width: 24ch; max-width: 40vw; border: 1px solid var(--accent); border-radius: 5px;
+  background: var(--surface); color: var(--ink); font: 500 12px var(--mono); padding: 4px 7px; outline: 0; }
 .output .band .range { font: 400 11px var(--mono); color: var(--ink-3); }
 .output .band .btn { height: 27px; font-size: 11.5px; padding: 0 9px; }
 .output .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 14px 12px; padding: 14px 12px; }

@@ -9,6 +9,9 @@ export function outputName(
   index: number,
   total: number,
 ): string {
+  const given = pages[0]?.name?.trim()
+  if (given) return `${base(given)}.pdf`
+
   const sources = new Set(pages.map(p => p.docId))
   const stem = sources.size === 1 ? base(docNames[[...sources][0]] ?? 'merged') : 'merged'
   return total === 1 ? `${stem}.pdf` : `${stem}-${index + 1}.pdf`
