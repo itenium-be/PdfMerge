@@ -8,8 +8,10 @@ It runs entirely in the browser — no upload, no backend.
 | Does | Detail |
 |---------------|-----------------------------------------------------------------------------------------|
 | Merge         | Drop or pick several PDFs; their pages queue up on one canvas                            |
+| Images        | PNG and JPEG files come in as pages of their own, fitted to A4                           |
 | Reorder       | Drag a page, or select several and drag them as a block                                  |
 | Split         | Cut the canvas anywhere; each cut starts a new output file with its own Download button  |
+| Naming        | Each output band shows the file name it will download as, and it can be edited there     |
 | Fix pages     | Rotate or remove single pages, or a whole selection                                      |
 | Detail rail   | Where the selected page came from: source file, original page number, output, rotation   |
 | Verifying     | Every output is written, read back and checked (page count, size, rotation) before it downloads |
