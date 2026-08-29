@@ -1,4 +1,4 @@
-import { PDFDocument } from 'pdf-lib'
+import type { PDFDocument } from 'pdf-lib'
 
 export type LoadedDoc = {
   id: string
@@ -17,6 +17,7 @@ export async function loadDocument(file: File): Promise<LoadedDoc> {
   const header = new TextDecoder().decode(bytes.subarray(0, 8))
   if (!header.startsWith(PDF_HEADER)) throw new Error(`${file.name} is not a PDF`)
 
+  const { PDFDocument } = await import('pdf-lib')
   let doc: PDFDocument
   try {
     doc = await PDFDocument.load(bytes)

@@ -5,7 +5,7 @@ import { loadDocument } from '../src/pdf/load'
 async function pdfFile(name: string, pages = 1) {
   const doc = await PDFDocument.create()
   for (let i = 0; i < pages; i++) doc.addPage([200, 300])
-  return new File([await doc.save()], name, { type: 'application/pdf' })
+  return new File([await doc.save() as BlobPart], name, { type: 'application/pdf' })
 }
 
 describe('loadDocument', () => {
@@ -30,7 +30,7 @@ describe('loadDocument', () => {
     const doc = await PDFDocument.create()
     doc.addPage()
     doc.context.trailerInfo.Encrypt = doc.context.register(doc.context.obj({ Filter: 'Standard', V: 1, R: 2 }))
-    const file = new File([await doc.save()], 'locked.pdf', { type: 'application/pdf' })
+    const file = new File([await doc.save() as BlobPart], 'locked.pdf', { type: 'application/pdf' })
     await expect(loadDocument(file)).rejects.toThrow(/password/i)
   })
 })

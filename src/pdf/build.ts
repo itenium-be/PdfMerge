@@ -1,4 +1,4 @@
-import { PDFDocument, degrees } from 'pdf-lib'
+import type { PDFDocument } from 'pdf-lib'
 import type { PageRef } from '../model/pages'
 
 export type Sources = Record<string, Uint8Array>
@@ -11,6 +11,8 @@ export type Meta = {
 /** Builds one PDF out of pages taken from several loaded documents, in the given order. */
 export async function buildPdf(sources: Sources, pages: readonly PageRef[], meta: Meta = {}): Promise<Uint8Array> {
   if (pages.length === 0) throw new Error('Cannot build a PDF with no pages')
+
+  const { PDFDocument, degrees } = await import('pdf-lib')
 
   const loaded = new Map<string, PDFDocument>()
   for (const docId of new Set(pages.map(p => p.docId))) {

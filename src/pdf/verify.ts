@@ -1,4 +1,4 @@
-import { PDFDocument } from 'pdf-lib'
+import type { PDFDocument } from 'pdf-lib'
 import type { PageRef } from '../model/pages'
 import type { Sources } from './build'
 
@@ -14,6 +14,7 @@ export async function verifyBuild(
   pages: readonly PageRef[],
   built: Uint8Array,
 ): Promise<string | null> {
+  const { PDFDocument } = await import('pdf-lib')
   const out = await PDFDocument.load(built)
   const actual = out.getPages()
   if (actual.length !== pages.length) {
