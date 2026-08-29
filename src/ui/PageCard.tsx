@@ -7,6 +7,8 @@ import { useThumbnail } from './useThumbnail'
 type Props = {
   page: PageRef
   index: number
+  /** Position within its own output file, which is what the page will be numbered when saved. */
+  position: number
   doc: LoadedDoc
   color: string
   selected: boolean
@@ -22,7 +24,7 @@ type Props = {
 }
 
 export function PageCard(props: Props) {
-  const { page, index, doc, color, selected, focused, canSplit } = props
+  const { page, index, position, doc, color, selected, focused, canSplit } = props
   const thumb = useThumbnail(doc, page.page)
 
   const allowDrop = (e: DragEvent) => {
@@ -113,7 +115,7 @@ export function PageCard(props: Props) {
         </span>
         <span className="orig">
           page {page.page}
-          <span className="seq">#{index + 1}</span>
+          <span className="seq">#{position}</span>
         </span>
       </div>
     </article>

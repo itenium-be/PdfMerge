@@ -57,17 +57,19 @@ export function DetailRail({ pages, docs, outputs, focused, selected, onRotate, 
   }
 
   const doc = docs[page.docId]
-  const inOutput = outputs.findIndex(o => o.start <= focused && focused < o.start + o.pages.length) + 1
+  const outputIndex = outputs.findIndex(o => o.start <= focused && focused < o.start + o.pages.length)
+  const output = outputs[outputIndex]
+  const position = focused - output.start + 1
 
   return (
     <div className="sticky">
-      <p className="eyebrow">Page {focused + 1} of {pages.length}</p>
+      <p className="eyebrow">Page {position} of {output.pages.length}</p>
       <Preview doc={doc} page={page} />
       <h3>{doc.name}</h3>
       <dl className="sum">
         <dt>original page</dt><dd>{page.page} of {doc.pageCount}</dd>
-        <dt>position</dt><dd>#{focused + 1}</dd>
-        <dt>output</dt><dd>Output {inOutput}</dd>
+        <dt>position</dt><dd>#{position}</dd>
+        <dt>output</dt><dd>Output {outputIndex + 1}</dd>
         <dt>rotation</dt><dd>{page.rot}°</dd>
       </dl>
       <div className="acts">
