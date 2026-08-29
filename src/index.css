@@ -78,8 +78,6 @@ a { color: inherit; }
 .grow { flex: 1; }
 .eyebrow { font: 500 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
 .hint { color: var(--ink-3); font-size: 12px; }
-.stat { font: 400 11.5px var(--mono); color: var(--ink-3); }
-.stat b { color: var(--ink-2); font-weight: 600; }
 
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 36px; padding: 0 14px;
   border: 1px solid var(--ink); background: var(--surface); border-radius: 5px; font: 500 13.5px var(--body); white-space: nowrap; }

@@ -182,7 +182,6 @@ export function App() {
           <h1>PDF Workbench</h1>
           <span>by itenium</span>
         </div>
-        {pages.length > 0 && <span className="stat"><b>{pages.length}</b> pages</span>}
         <span className="grow" />
         <button className="btn btn-ghost btn-sm" onClick={undo} disabled={!canUndo}>Undo</button>
         <button className="btn btn-ghost btn-sm" onClick={redo} disabled={!canRedo}>Redo</button>
