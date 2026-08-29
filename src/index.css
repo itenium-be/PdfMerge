@@ -189,9 +189,9 @@ a { color: inherit; }
 .note-ok { background: var(--ok-bg); border: 1px solid var(--ok-line); color: var(--ok-ink); }
 .note .btn { height: 26px; font-size: 11.5px; padding: 0 8px; border-color: currentColor; color: inherit; background: 0; }
 
-.drop-hint { border: 1.5px dashed var(--rule); border-radius: 9px; padding: 16px; text-align: center;
-  color: var(--ink-3); font-size: 12.5px; }
-.drop-hint b { color: var(--ink-2); font-weight: 500; }
+.drop-hint { width: 100%; border: 1.5px dashed var(--rule); border-radius: 9px; padding: 16px; text-align: center;
+  color: var(--ink-3); font: 400 12.5px var(--body); background: 0; }
+.drop-hint:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 
 .blank { flex: 1; display: grid; place-items: center; padding: 60px 22px; }
 .blank .box { max-width: 460px; text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center; }

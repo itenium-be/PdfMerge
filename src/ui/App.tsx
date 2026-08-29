@@ -243,6 +243,7 @@ export function App() {
                         key={`${page.docId}:${page.page}:${index}`}
                         page={page}
                         index={index}
+                        position={pi + 1}
                         doc={byId[page.docId]}
                         color={colors[page.docId]}
                         selected={selected.includes(index)}
@@ -261,7 +262,7 @@ export function App() {
                 </div>
               </section>
             ))}
-            <div className="drop-hint">Drop more PDFs here to add them to the end</div>
+            <button className="drop-hint" onClick={pick} disabled={busy}>Drop more PDFs here</button>
           </div>
 
           <aside className="aside">
