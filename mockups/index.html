@@ -1,0 +1,140 @@
+<meta charset="utf-8">
+<title>Three PDF Tool Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 22px; }
+.intro { padding: 40px 0 26px; }
+.intro h2 { font-size: 34px; font-weight: 800; letter-spacing: -.035em; max-width: 18ch; }
+.intro p { color: var(--ink-2); font-size: 14.5px; max-width: 62ch; margin: 12px 0 0; }
+.intro .meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; font: 400 11.5px var(--mono); color: var(--ink-3); }
+
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-bottom: 8px; }
+.card { display: flex; flex-direction: column; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); overflow: hidden; text-decoration: none; }
+.card:hover { border-color: var(--accent); }
+.card .wire { background: var(--sunk); border-bottom: 1px solid var(--rule-2); padding: 14px; }
+.card .wire svg { display: block; width: 100%; height: auto; }
+.card .body { padding: 14px 15px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.card h3 { font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
+.card .thesis { font-size: 13px; color: var(--ink-2); }
+.card dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 4px 0 0; font: 400 11px/1.35 var(--mono); color: var(--ink-3); }
+.card dd { margin: 0; color: var(--ink-2); }
+.card .open { margin-top: auto; padding-top: 10px; font: 500 12.5px var(--body); color: var(--accent); }
+
+.compare { margin: 34px 0 46px; }
+.compare h3 { font-size: 13px; font-family: var(--mono); font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+th { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+td:first-child { color: var(--ink-2); width: 21%; }
+tbody tr:hover { background: var(--sunk); }
+.tick { color: var(--ok-ink); }
+.cross { color: var(--ink-3); }
+@media (max-width: 820px) { .cards { grid-template-columns: 1fr; } .compare { overflow-x: auto; } }
+</style>
+
+<div class="shell">
+  <header class="appbar">
+    <div class="wordmark" data-wordmark></div>
+    <span class="grow"></span>
+    <button class="btn btn-ghost btn-sm btn-icon" data-theme-toggle></button>
+  </header>
+
+  <div class="wrap">
+    <div class="intro">
+      <h2>Three ways to build the PDF tool</h2>
+      <p>Same feature set — merge, reorder, split, delete, replace — and the same shell as the QR Generator:
+        light/dark, itenium footer, source on GitHub. What differs is the model the user has to hold in their head.
+        Every mockup is clickable: reorder, cut, select, switch outputs.</p>
+      <div class="meta">
+        <span>static · no backend · GitHub Pages</span>
+        <span>pdf-lib in the browser</span>
+        <span>tokens from QRGenerator</span>
+      </div>
+    </div>
+
+    <div class="cards" id="cards"></div>
+
+    <section class="compare">
+      <h3>Where they differ</h3>
+      <table>
+        <thead><tr><th>&nbsp;</th><th>A · Workbench</th><th>B · Studio</th><th>C · Assembly</th></tr></thead>
+        <tbody>
+          <tr><td>Mental model</td><td>One pile of pages you rearrange</td><td>A wizard that asks one thing at a time</td><td>Sources on the left, outputs you build on the right</td></tr>
+          <tr><td>Merge</td><td>Implicit — drop files, they queue up</td><td>Step 1 + 2</td><td>Click or drag pages into an output</td></tr>
+          <tr><td>Split</td><td>Cut line drawn across the grid</td><td>Rule-based step (every N, at pages, per file)</td><td>New output tab; drag pages across</td></tr>
+          <tr><td>Replace a page</td><td>Select page → Replace</td><td>Page step, per-page button</td><td>Hover a page in the output → replace</td></tr>
+          <tr><td>Provenance stays visible</td><td class="tick">dot + file name per page</td><td class="cross">only in the page step</td><td class="tick">runs are labelled "pages 1–6 of X"</td></tr>
+          <tr><td>Fastest for "merge 2 PDFs"</td><td class="tick">drop, drop, save</td><td class="cross">5 steps</td><td class="cross">two clicks per file</td></tr>
+          <tr><td>Best at many outputs</td><td class="cross">one canvas gets long</td><td class="tick">rules do the work</td><td class="tick">a tab per output</td></tr>
+          <tr><td>Risk</td><td>Big jobs = a lot of scrolling</td><td>Feels heavy for a 10-second task</td><td>Two panes is a lot of UI on mobile</td></tr>
+          <tr><td>Build cost</td><td>Medium — drag &amp; drop grid</td><td>Low — plain forms</td><td>High — two-pane drag, run grouping</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <footer class="footer" data-footer></footer>
+</div>
+
+<script src="_shared.js"></script>
+<script>
+const WIRE_A = `<svg viewBox="0 0 300 150" fill="none">
+  <rect width="300" height="150" fill="var(--surface)"/>
+  <rect x="0" y="0" width="300" height="18" fill="var(--sunk)"/>
+  <rect x="10" y="6" width="46" height="6" rx="3" fill="var(--ink)" opacity=".55"/>
+  <rect x="10" y="26" width="52" height="12" rx="6" fill="var(--accent)" opacity=".25"/>
+  <rect x="68" y="26" width="52" height="12" rx="6" fill="var(--ink)" opacity=".12"/>
+  <rect x="126" y="26" width="40" height="12" rx="6" fill="var(--ink)" opacity=".12"/>
+  ${[0,1,2,3,4].map(i => `<rect x="${10 + i * 58}" y="50" width="46" height="36" rx="3" fill="var(--ink)" opacity=".1"/>`).join('')}
+  <line x1="10" y1="96" x2="290" y2="96" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4"/>
+  <rect x="10" y="104" width="46" height="36" rx="3" fill="var(--ink)" opacity=".1"/>
+  <rect x="68" y="104" width="46" height="36" rx="3" fill="var(--ink)" opacity=".1"/>
+</svg>`
+const WIRE_B = `<svg viewBox="0 0 300 150" fill="none">
+  <rect width="300" height="150" fill="var(--surface)"/>
+  <rect x="0" y="0" width="76" height="150" fill="var(--sunk)"/>
+  ${[0,1,2,3,4].map(i => `<circle cx="16" cy="${24 + i * 24}" r="6" fill="${i === 1 ? 'var(--accent)' : 'var(--ink)'}" opacity="${i === 1 ? 1 : .16}"/>
+    <rect x="28" y="${20 + i * 24}" width="${i === 1 ? 40 : 34}" height="7" rx="3.5" fill="var(--ink)" opacity="${i === 1 ? .5 : .16}"/>`).join('')}
+  <rect x="90" y="18" width="110" height="12" rx="4" fill="var(--ink)" opacity=".5"/>
+  ${[0,1,2].map(i => `<rect x="90" y="${44 + i * 26}" width="128" height="18" rx="4" fill="var(--ink)" opacity=".1"/>`).join('')}
+  <rect x="232" y="18" width="58" height="114" rx="4" fill="var(--ink)" opacity=".07"/>
+  <rect x="240" y="28" width="42" height="52" rx="3" fill="var(--surface)"/>
+</svg>`
+const WIRE_C = `<svg viewBox="0 0 300 150" fill="none">
+  <rect width="300" height="150" fill="var(--surface)"/>
+  <rect x="0" y="0" width="96" height="150" fill="var(--sunk)"/>
+  ${[0,1,2].map(i => `<rect x="10" y="${14 + i * 44}" width="76" height="34" rx="4" fill="var(--ink)" opacity=".09"/>
+    <rect x="14" y="${20 + i * 44}" width="4" height="22" rx="2" fill="${['var(--accent)','#2B4BF2','#B5297A'][i]}"/>`).join('')}
+  <rect x="106" y="10" width="66" height="14" rx="4" fill="var(--ink)" opacity=".14"/>
+  <rect x="106" y="10" width="66" height="14" rx="4" fill="var(--accent)" opacity=".25"/>
+  <rect x="178" y="10" width="52" height="14" rx="4" fill="var(--ink)" opacity=".08"/>
+  ${[0,1].map(i => `<rect x="106" y="${34 + i * 52}" width="184" height="46" rx="5" fill="var(--ink)" opacity=".07"/>
+    <rect x="112" y="${40 + i * 52}" width="3" height="14" rx="1.5" fill="${['var(--accent)','#2B4BF2'][i]}"/>
+    ${[0,1,2,3].map(j => `<rect x="${112 + j * 34}" y="${58 + i * 52}" width="28" height="16" rx="2" fill="var(--surface)"/>`).join('')}`).join('')}
+</svg>`
+
+const CARDS = [
+  { href: 'a-workbench.html', wire: WIRE_A, name: 'A · Workbench', thesis: 'All pages from all files on one canvas. Drag to reorder, draw a cut where a second file should start.',
+    rows: [['signature', 'the cut line'], ['screens', 'one'], ['suits', 'people who know PDFs']] },
+  { href: 'b-steps.html', wire: WIRE_B, name: 'B · Studio', thesis: 'The QR Generator layout, reused: numbered steps, one decision per screen, a running summary on the right.',
+    rows: [['signature', 'the step rail'], ['screens', 'five'], ['suits', 'anyone, once']] },
+  { href: 'c-assembly.html', wire: WIRE_C, name: 'C · Assembly', thesis: 'Sources stay on the left, outputs get built on the right, and each output reads as "pages 1–6 of that file".',
+    rows: [['signature', 'labelled runs'], ['screens', 'one, two panes'], ['suits', 'splitting into many files']] },
+]
+
+document.getElementById('cards').innerHTML = CARDS.map(c => `
+  <a class="card" href="${c.href}">
+    <div class="wire">${c.wire}</div>
+    <div class="body">
+      <h3>${c.name}</h3>
+      <p class="thesis">${c.thesis}</p>
+      <dl>${c.rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
+      <span class="open">Open the mockup →</span>
+    </div>
+  </a>`).join('')
+
+mountChrome('PDF Tool', 'mockups')
+</script>

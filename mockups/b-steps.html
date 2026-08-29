@@ -1,0 +1,247 @@
+<meta charset="utf-8">
+<title>Guided PDF Steps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.work { display: grid; grid-template-columns: 212px minmax(0, 1fr) 292px; flex: 1; }
+.rail { border-right: 1px solid var(--rule); padding: 20px 0; background: var(--sunk); }
+.step { display: flex; gap: 11px; align-items: flex-start; width: 100%; border: 0; background: 0; text-align: left;
+  padding: 11px 20px; color: var(--ink-3); position: relative; }
+.step .n { font: 600 11px/1 var(--mono); width: 20px; height: 20px; flex: none; border: 1px solid var(--rule);
+  border-radius: 50%; display: grid; place-items: center; background: var(--surface); }
+.step .t { font-size: 13.5px; font-weight: 500; line-height: 1.25; }
+.step .t small { display: block; font-size: 11.5px; font-weight: 400; color: var(--ink-3); margin-top: 2px; }
+.step:hover { color: var(--ink-2); }
+.step[aria-current] { color: var(--ink); }
+.step[aria-current] .n { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.step[aria-current]::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; background: var(--accent); }
+.step[data-done] .n { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+
+.pane { padding: 24px 28px 28px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.pane h2 { font-size: 26px; font-weight: 800; letter-spacing: -.03em; }
+.pane .lede { color: var(--ink-2); font-size: 13.5px; margin: 7px 0 0; }
+.navrow { display: flex; gap: 9px; justify-content: space-between; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--rule-2); }
+
+.aside { border-left: 1px solid var(--rule); padding: 20px; }
+.aside .sticky { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 12px; }
+.sum { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 12px; margin: 0; font: 400 11.5px/1.4 var(--mono); color: var(--ink-3); }
+.sum dd { margin: 0; color: var(--ink-2); text-align: right; }
+.stage { border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); padding: 14px;
+  background-image: linear-gradient(var(--rule-2) 1px, transparent 1px), linear-gradient(90deg, var(--rule-2) 1px, transparent 1px);
+  background-size: 8px 8px; }
+.stage .stack { position: relative; }
+.stage .stack .sheet { box-shadow: 0 2px 8px rgb(21 22 27 / .18); border-radius: 3px; }
+
+.drop { border: 1.5px dashed var(--rule); border-radius: 9px; padding: 30px 20px; text-align: center; background: var(--sunk); }
+.drop b { display: block; font: 700 17px var(--disp); color: var(--ink); margin-bottom: 4px; }
+.drop span { font-size: 12.5px; color: var(--ink-3); }
+.drop .btn { margin-top: 12px; }
+
+.rows { display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; align-items: center; gap: 12px; border: 1px solid var(--rule-2); border-radius: 8px; padding: 9px 11px; background: var(--surface); }
+.row:hover { border-color: var(--rule); }
+.row .handle { color: var(--ink-3); cursor: grab; font: 400 14px var(--mono); letter-spacing: -2px; }
+.row .thumb { width: 34px; flex: none; }
+.row .meta { flex: 1; min-width: 0; }
+.row .meta b { display: block; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .meta span { display: block; font: 400 10.5px var(--mono); color: var(--ink-3); }
+.row .bar { width: 4px; align-self: stretch; border-radius: 2px; }
+
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; }
+.pg { position: relative; border: 1px solid var(--rule-2); border-radius: 6px; padding: 5px; background: var(--surface); }
+.pg:hover { border-color: var(--ink-3); }
+.pg .cap { display: flex; align-items: center; gap: 5px; margin-top: 5px; font: 400 10px var(--mono); color: var(--ink-3); }
+.pg .cap .dot { width: 6px; height: 6px; border-radius: 2px; }
+.pg .tools { position: absolute; inset: 5px 5px auto 5px; display: flex; gap: 3px; justify-content: flex-end; opacity: 0; }
+.pg:hover .tools { opacity: 1; }
+.pg .tools button { width: 22px; height: 22px; display: grid; place-items: center; padding: 0; border: 1px solid var(--rule);
+  border-radius: 4px; background: var(--surface); color: var(--ink-2); font-size: 11px; }
+.pg .tools button:hover { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.pg[data-off] { opacity: .35; }
+.pg[data-off] .cap { text-decoration: line-through; }
+
+.opts { display: flex; flex-direction: column; gap: 9px; }
+.opt { display: flex; gap: 11px; align-items: flex-start; border: 1px solid var(--rule); border-radius: 8px; padding: 12px 13px; background: var(--surface); }
+.opt[aria-checked='true'] { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent); }
+.opt input { accent-color: var(--accent); margin-top: 3px; }
+.opt b { display: block; font-size: 13.5px; font-weight: 600; }
+.opt span { font-size: 12.5px; color: var(--ink-3); }
+.opt .inline { display: flex; align-items: center; gap: 7px; margin-top: 8px; font-size: 12.5px; color: var(--ink-2); }
+.opt .inline input[type='number'], .opt .inline input[type='text'] { border: 1px solid var(--rule); border-radius: 5px;
+  background: var(--surface); padding: 5px 8px; width: 74px; }
+.opt .inline input[type='text'] { width: 160px; font-family: var(--mono); font-size: 12px; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field > label { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.field input { border: 1px solid var(--rule); border-radius: 5px; background: var(--surface); padding: 9px 10px; font-size: 13.5px; }
+.field input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.note { display: flex; gap: 9px; padding: 10px 12px; border-radius: 6px; font-size: 12.5px;
+  background: var(--ok-bg); border: 1px solid var(--ok-line); color: var(--ok-ink); }
+.outlist { display: flex; flex-direction: column; gap: 6px; }
+.outrow { display: flex; align-items: center; gap: 10px; border: 1px solid var(--rule-2); border-radius: 7px; padding: 8px 11px; font-size: 13px; }
+.outrow .mono { color: var(--ink-3); font-size: 11px; margin-left: auto; }
+
+@media (max-width: 720px) {
+  .two { grid-template-columns: 1fr; }
+  .outrow { flex-wrap: wrap; }
+  .outrow .mono { margin-left: 0; }
+}
+@media (max-width: 900px) {
+  .work { grid-template-columns: 1fr; }
+  .rail { display: flex; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 8px; }
+  .step { width: auto; padding: 8px 12px; white-space: nowrap; }
+  .step .t small { display: none; }
+  .step[aria-current]::before { inset: auto 8px 0 8px; height: 2px; width: auto; top: auto; }
+  .aside { border-left: 0; border-top: 1px solid var(--rule); }
+  .aside .sticky { position: static; }
+}
+</style>
+
+<div class="shell">
+  <header class="appbar">
+    <div class="wordmark" data-wordmark></div>
+    <span class="grow"></span>
+    <button class="btn btn-ghost btn-sm">Start over</button>
+    <button class="btn btn-ghost btn-sm btn-icon" data-theme-toggle></button>
+  </header>
+
+  <div class="work">
+    <nav class="rail" id="rail" aria-label="Steps"></nav>
+    <section class="pane" id="pane"></section>
+    <aside class="aside">
+      <div class="sticky">
+        <p class="eyebrow">Result</p>
+        <div class="stage"><div class="stack" id="preview"></div></div>
+        <dl class="sum">
+          <dt>files in</dt><dd>4</dd>
+          <dt>pages kept</dt><dd>14 of 16</dd>
+          <dt>files out</dt><dd id="sum-out">2</dd>
+          <dt>size</dt><dd>~1.9 MB</dd>
+        </dl>
+        <p class="note"><span aria-hidden="true">✓</span><span>Nothing is uploaded. The merge runs in this browser tab.</span></p>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer" data-footer></footer>
+</div>
+
+<script src="_shared.js"></script>
+<script>
+const DOCS = [
+  { name: 'Q3-invoices.pdf', color: '#E78200', pages: 6, kind: 'invoice', size: '820 KB' },
+  { name: 'Service-agreement.pdf', color: '#2B4BF2', pages: 5, kind: 'contract', size: '410 KB' },
+  { name: 'Signed-page-4.pdf', color: '#12A594', pages: 1, kind: 'scan', size: '96 KB' },
+  { name: 'Board-deck.pdf', color: '#B5297A', pages: 4, kind: 'report', size: '1.2 MB' },
+]
+
+const STEPS = [
+  { t: 'Files', s: '4 added' },
+  { t: 'Order', s: 'drag to arrange' },
+  { t: 'Pages', s: '2 removed' },
+  { t: 'Split', s: '2 files out' },
+  { t: 'Save', s: '' },
+]
+let current = 1
+
+const PANES = {
+  0: () => `
+    <div><h2>Add your PDFs</h2><p class="lede">Drop them in, or pick them from disk. They stay on your machine.</p></div>
+    <div class="drop"><b>Drop PDFs here</b><span>or paste from the clipboard · up to 200 MB per file</span>
+      <div><button class="btn btn-primary">Choose files</button></div></div>
+    <div class="rows">${DOCS.map(d => `
+      <div class="row">
+        <span class="bar" style="background:${d.color}"></span>
+        <div class="thumb">${sheet(d.kind, 1)}</div>
+        <div class="meta"><b>${d.name}</b><span>${d.pages} pages · ${d.size}</span></div>
+        <button class="btn btn-ghost btn-sm">Remove</button>
+      </div>`).join('')}</div>`,
+
+  1: () => `
+    <div><h2>Put the files in order</h2><p class="lede">This is the order they will be stitched together in. Shuffle single pages in the next step.</p></div>
+    <div class="rows">${DOCS.map((d, i) => `
+      <div class="row">
+        <span class="handle" aria-hidden="true">⠿</span>
+        <span class="bar" style="background:${d.color}"></span>
+        <div class="thumb">${sheet(d.kind, 1)}</div>
+        <div class="meta"><b>${d.name}</b><span>${d.pages} pages · position ${i + 1}</span></div>
+        <button class="btn btn-ghost btn-sm">Reverse</button>
+        <button class="btn btn-ghost btn-sm">Remove</button>
+      </div>`).join('')}</div>
+    <p class="hint">Keyboard: select a row and press <span class="mono">Alt+↑ / Alt+↓</span>.</p>`,
+
+  2: () => {
+    const all = DOCS.flatMap((d, di) => Array.from({ length: d.pages }, (_, pi) => ({ d, di, pi })))
+    return `
+    <div><h2>Fix the pages</h2><p class="lede">Rotate what came in sideways, drop what you do not need, swap a page for a better scan.</p></div>
+    <div class="pgrid">${all.map((p, i) => `
+      <div class="pg" ${i === 3 || i === 10 ? 'data-off' : ''}>
+        <div class="tools"><button title="Rotate">⟳</button><button title="Replace">⇄</button><button title="Delete">✕</button></div>
+        ${sheet(p.d.kind, p.pi + 1)}
+        <div class="cap"><span class="dot" style="background:${p.d.color}"></span>${i + 1}</div>
+      </div>`).join('')}</div>`
+  },
+
+  3: () => `
+    <div><h2>One file, or several?</h2><p class="lede">Merging is the default. Split when the stack is really two documents.</p></div>
+    <div class="opts">
+      <label class="opt" aria-checked="false"><input type="radio" name="split"><span><b>Keep it as one PDF</b><span>All 14 pages in a single file.</span></span></label>
+      <label class="opt" aria-checked="true"><input type="radio" name="split" checked><span><b>Cut at the pages I pick</b><span>Each cut starts a new file.</span>
+        <span class="inline">Cut before page <input type="text" value="7, 12"></span></span></label>
+      <label class="opt" aria-checked="false"><input type="radio" name="split"><span><b>Every N pages</b><span>Useful for scanned batches.</span>
+        <span class="inline">Every <input type="number" value="2"> pages</span></span></label>
+      <label class="opt" aria-checked="false"><input type="radio" name="split"><span><b>One file per source PDF</b><span>Undo the merge, keep the page edits.</span></span></label>
+    </div>
+    <div class="outlist">
+      <div class="outrow"><span class="mono eyebrow">out 1</span> invoices-and-contract.pdf <span class="mono">pages 1–6 · 6 pages</span></div>
+      <div class="outrow"><span class="mono eyebrow">out 2</span> board-deck.pdf <span class="mono">pages 7–14 · 8 pages</span></div>
+    </div>`,
+
+  4: () => `
+    <div><h2>Save</h2><p class="lede">Name the files and download. Nothing left our tab.</p></div>
+    <div class="two">
+      <div class="field"><label for="f1">File 1 name</label><input id="f1" value="invoices-and-contract.pdf"></div>
+      <div class="field"><label for="f2">File 2 name</label><input id="f2" value="board-deck.pdf"></div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="t">Document title</label><input id="t" value="Q3 invoices &amp; agreement"></div>
+      <div class="field"><label for="a">Author</label><input id="a" value="itenium"></div>
+    </div>
+    <div class="outlist">
+      <div class="outrow"><span class="mono eyebrow">out 1</span> invoices-and-contract.pdf <span class="mono">6 pages · ~1.1 MB</span></div>
+      <div class="outrow"><span class="mono eyebrow">out 2</span> board-deck.pdf <span class="mono">8 pages · ~0.8 MB</span></div>
+    </div>
+    <p class="note"><span aria-hidden="true">✓</span><span>Both files were rebuilt and re-read before the download — page count and order verified.</span></p>`,
+}
+
+function render() {
+  document.getElementById('rail').innerHTML = STEPS.map((s, i) => `
+    <button class="step" ${i === current ? 'aria-current="step"' : ''} ${i < current ? 'data-done' : ''} data-step="${i}">
+      <span class="n">${i < current ? '✓' : i + 1}</span>
+      <span class="t">${s.t}${s.s ? '<small>' + s.s + '</small>' : ''}</span>
+    </button>`).join('')
+
+  document.getElementById('pane').innerHTML = PANES[current]() + `
+    <div class="navrow">
+      <button class="btn btn-ghost" data-nav="-1" ${current === 0 ? 'disabled' : ''}>Back</button>
+      ${current === STEPS.length - 1
+        ? '<button class="btn btn-accent">Download 2 PDFs</button>'
+        : '<button class="btn btn-primary" data-nav="1">Continue</button>'}
+    </div>`
+
+  document.getElementById('preview').innerHTML = sheet(DOCS[Math.min(current, 3)].kind, 1)
+}
+
+document.body.addEventListener('click', e => {
+  const s = e.target.closest('[data-step]')
+  if (s) { current = +s.dataset.step; return render() }
+  const n = e.target.closest('[data-nav]')
+  if (n) { current = Math.max(0, Math.min(STEPS.length - 1, current + +n.dataset.nav)); render() }
+})
+
+mountChrome('PDF Studio', 'by itenium')
+render()
+</script>

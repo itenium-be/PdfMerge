@@ -1,0 +1,237 @@
+<meta charset="utf-8">
+<title>PDF Assembly Line</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.work { display: grid; grid-template-columns: 296px minmax(0, 1fr); flex: 1; min-height: 0; }
+
+.sources { border-right: 1px solid var(--rule); background: var(--sunk); display: flex; flex-direction: column; }
+.sources header { display: flex; align-items: center; gap: 8px; padding: 14px 16px 10px; }
+.sources .list { padding: 0 12px 14px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+.src { border: 1px solid var(--rule-2); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.src > summary { display: flex; align-items: center; gap: 9px; padding: 9px 11px; cursor: pointer; list-style: none; }
+.src > summary::-webkit-details-marker { display: none; }
+.src .bar { width: 4px; height: 26px; border-radius: 2px; flex: none; }
+.src .meta { flex: 1; min-width: 0; }
+.src .meta b { display: block; font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.src .meta span { display: block; font: 400 10.5px var(--mono); color: var(--ink-3); }
+.src .used { font: 500 9.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 3px 6px;
+  border-radius: 4px; background: var(--ok-bg); color: var(--ok-ink); border: 1px solid var(--ok-line); }
+.src .strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 11px 11px; }
+.src .strip button { border: 1px solid var(--rule-2); border-radius: 4px; background: var(--surface); padding: 3px; position: relative; }
+.src .strip button:hover { border-color: var(--accent); }
+.src .strip button[data-in]::after { content: '✓'; position: absolute; inset: auto 3px 3px auto; font: 600 9px var(--mono);
+  color: var(--accent-ink); background: var(--accent); border-radius: 3px; padding: 1px 3px; }
+.src .strip .lbl { display: block; font: 400 9px var(--mono); color: var(--ink-3); text-align: center; margin-top: 2px; }
+
+.build { display: flex; flex-direction: column; min-width: 0; }
+.tabs { display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 10px 18px 0; border-bottom: 1px solid var(--rule); }
+.tab { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--rule); border-bottom: 0;
+  border-radius: 7px 7px 0 0; background: var(--sunk); color: var(--ink-3); padding: 8px 12px; font-size: 12.5px; margin-bottom: -1px; }
+.tab[aria-selected='true'] { background: var(--surface); color: var(--ink); font-weight: 600; }
+.tab .pages { font: 400 10.5px var(--mono); color: var(--ink-3); }
+.tab .x { border: 0; background: 0; color: var(--ink-3); padding: 0 0 0 2px; }
+
+.buildbar { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-bottom: 1px solid var(--rule-2); }
+.buildbar .name { font: 600 15px var(--disp); }
+.buildbar .stat { font: 400 11.5px var(--mono); color: var(--ink-3); }
+
+.reel { flex: 1; overflow-y: auto; padding: 16px 18px 26px; display: flex; flex-direction: column; gap: 10px; }
+
+/* A run is the signature: the output stays readable as "pages 1-6 of that file", not 14 loose thumbnails. */
+.run { border: 1px solid var(--rule-2); border-radius: 9px; background: var(--surface); }
+.run:hover { border-color: var(--rule); }
+.run .head { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid var(--rule-2); }
+.run .head .bar { width: 4px; height: 20px; border-radius: 2px; flex: none; }
+.run .head b { font-size: 12.5px; font-weight: 600; }
+.run .head .range { font: 400 11px var(--mono); color: var(--ink-3); }
+.run .head .grow { flex: 1; }
+.run .head .btn { height: 26px; font-size: 11.5px; padding: 0 8px; }
+.run .pages { display: flex; gap: 8px; padding: 11px 12px; overflow-x: auto; }
+.run .pg { flex: none; width: 74px; position: relative; }
+.run .pg .lbl { display: block; font: 400 9.5px var(--mono); color: var(--ink-3); text-align: center; margin-top: 3px; }
+.run .pg .drop { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; border-radius: 3px;
+  background: color-mix(in srgb, var(--ink) 72%, transparent); color: #fff; font-size: 10px; font-family: var(--mono); }
+.run .pg:hover .drop { opacity: 1; cursor: pointer; }
+
+.gap { display: flex; align-items: center; gap: 8px; color: var(--ink-3); opacity: 0; transition: opacity .12s; }
+.gap:hover, .gap:focus-within { opacity: 1; }
+.gap .line { flex: 1; border-top: 1px dashed var(--rule); }
+.gap button { border: 1px solid var(--rule); border-radius: 999px; background: var(--surface); font: 400 11px var(--mono);
+  color: var(--ink-2); padding: 3px 10px; }
+.gap button:hover { border-color: var(--accent); color: var(--accent); }
+
+.emptyout { border: 1.5px dashed var(--rule); border-radius: 9px; padding: 26px; text-align: center; color: var(--ink-3); font-size: 12.5px; }
+.savebar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--rule); background: var(--sunk); }
+.savebar .fname { display: flex; align-items: center; gap: 8px; border: 1px solid var(--rule); border-radius: 6px;
+  background: var(--surface); padding: 0 10px; height: 34px; font: 400 12.5px var(--mono); }
+.savebar .fname input { border: 0; background: 0; outline: 0; width: min(220px, 40vw); font: inherit; }
+
+@media (max-width: 900px) {
+  .work { grid-template-columns: 1fr; }
+  .sources { border-right: 0; border-bottom: 1px solid var(--rule); max-height: 40vh; }
+}
+</style>
+
+<div class="shell">
+  <header class="appbar">
+    <div class="wordmark" data-wordmark></div>
+    <span class="grow"></span>
+    <button class="btn btn-ghost btn-sm">Undo</button>
+    <button class="btn btn-accent btn-sm" id="saveall">Save all outputs</button>
+    <button class="btn btn-ghost btn-sm btn-icon" data-theme-toggle></button>
+  </header>
+
+  <div class="work">
+    <aside class="sources">
+      <header>
+        <p class="eyebrow">Sources</p>
+        <span class="grow"></span>
+        <button class="btn btn-ghost btn-sm">+ Add</button>
+      </header>
+      <div class="list" id="srclist"></div>
+    </aside>
+
+    <section class="build">
+      <div class="tabs" id="tabs"></div>
+      <div class="buildbar">
+        <span class="name" id="outname">merged.pdf</span>
+        <span class="stat" id="outstat"></span>
+        <span class="grow"></span>
+        <button class="btn btn-ghost btn-sm">Reverse</button>
+        <button class="btn btn-ghost btn-sm">Clear</button>
+      </div>
+      <div class="reel" id="reel"></div>
+      <div class="savebar">
+        <span class="fname"><input id="fn" value="merged.pdf" aria-label="Output file name"></span>
+        <span class="hint">Rebuilt and re-read before download.</span>
+        <span class="grow"></span>
+        <button class="btn btn-primary btn-sm">Save this PDF</button>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer" data-footer></footer>
+</div>
+
+<script src="_shared.js"></script>
+<script>
+const DOCS = [
+  { name: 'Q3-invoices.pdf', short: 'Q3-invoices', color: '#E78200', kind: 'invoice', pages: 6 },
+  { name: 'Service-agreement.pdf', short: 'Service-agreement', color: '#2B4BF2', kind: 'contract', pages: 5 },
+  { name: 'Signed-page-4.pdf', short: 'Signed-page-4', color: '#12A594', kind: 'scan', pages: 1 },
+  { name: 'Board-deck.pdf', short: 'Board-deck', color: '#B5297A', kind: 'report', pages: 4 },
+]
+
+const outputs = [
+  { name: 'invoices-and-contract.pdf', items: [
+    { d: 0, p: 1 }, { d: 0, p: 2 }, { d: 0, p: 3 }, { d: 0, p: 4 }, { d: 0, p: 5 }, { d: 0, p: 6 },
+    { d: 1, p: 1 }, { d: 1, p: 2 }, { d: 1, p: 3 }, { d: 2, p: 1 }, { d: 1, p: 5 },
+  ] },
+  { name: 'board-deck.pdf', items: [{ d: 3, p: 1 }, { d: 3, p: 2 }, { d: 3, p: 3 }, { d: 3, p: 4 }] },
+]
+let active = 0
+
+const used = () => new Set(outputs.flatMap(o => o.items.map(i => i.d + ':' + i.p)))
+
+function runsOf(items) {
+  const runs = []
+  items.forEach((it, i) => {
+    const last = runs[runs.length - 1]
+    if (last && last.d === it.d && it.p === last.pages[last.pages.length - 1] + 1) last.pages.push(it.p)
+    else runs.push({ d: it.d, pages: [it.p], at: i })
+  })
+  return runs
+}
+
+function renderSources() {
+  const u = used()
+  document.getElementById('srclist').innerHTML = DOCS.map((d, di) => `
+    <details class="src" ${di < 2 ? 'open' : ''}>
+      <summary>
+        <span class="bar" style="background:${d.color}"></span>
+        <span class="meta"><b>${d.name}</b><span>${d.pages} pages</span></span>
+        ${Array.from({ length: d.pages }, (_, i) => u.has(di + ':' + (i + 1))).every(Boolean)
+          ? '<span class="used">all used</span>' : ''}
+      </summary>
+      <div class="strip">
+        ${Array.from({ length: d.pages }, (_, i) => `
+          <button data-add="${di}:${i + 1}" ${u.has(di + ':' + (i + 1)) ? 'data-in' : ''} title="Add page ${i + 1} to ${outputs[active].name}">
+            ${sheet(d.kind, i + 1)}<span class="lbl">${i + 1}</span>
+          </button>`).join('')}
+      </div>
+    </details>`).join('')
+}
+
+function renderBuild() {
+  document.getElementById('tabs').innerHTML = outputs.map((o, i) => `
+    <button class="tab" aria-selected="${i === active}" data-tab="${i}">
+      ${o.name}<span class="pages">${o.items.length}p</span><span class="x" aria-hidden="true">✕</span>
+    </button>`).join('') + '<button class="tab" style="border-style:dashed" data-newtab>+ New output</button>'
+
+  const out = outputs[active]
+  document.getElementById('outname').textContent = out.name
+  document.getElementById('fn').value = out.name
+  const srcCount = new Set(out.items.map(i => i.d)).size
+  document.getElementById('outstat').textContent = out.items.length + ' pages from ' + srcCount + ' source' + (srcCount > 1 ? 's' : '')
+
+  const runs = runsOf(out.items)
+  const gap = at => `<div class="gap"><span class="line"></span><button data-splitat="${at}">Split into a new output here</button><span class="line"></span></div>`
+
+  document.getElementById('reel').innerHTML = runs.length === 0
+    ? '<div class="emptyout">Nothing here yet. Click pages on the left, or drag a whole file in.</div>'
+    : runs.map((r, ri) => {
+      const d = DOCS[r.d]
+      const range = r.pages.length === 1 ? 'page ' + r.pages[0] : 'pages ' + r.pages[0] + '–' + r.pages[r.pages.length - 1]
+      return (ri > 0 ? gap(r.at) : '') + `
+      <article class="run">
+        <div class="head">
+          <span class="bar" style="background:${d.color}"></span>
+          <b>${d.name}</b><span class="range">${range}</span>
+          <span class="grow"></span>
+          <button class="btn btn-ghost btn-sm">Rotate all</button>
+          <button class="btn btn-ghost btn-sm" data-rmrun="${ri}">Remove run</button>
+        </div>
+        <div class="pages">
+          ${r.pages.map(p => `<div class="pg">${sheet(d.kind, p)}<span class="drop">replace</span><span class="lbl">${d.short} · ${p}</span></div>`).join('')}
+        </div>
+      </article>`
+    }).join('')
+}
+
+function render() { renderSources(); renderBuild() }
+
+document.body.addEventListener('click', e => {
+  const add = e.target.closest('[data-add]')
+  if (add) {
+    const [d, p] = add.dataset.add.split(':').map(Number)
+    outputs[active].items.push({ d, p })
+    return render()
+  }
+  const tab = e.target.closest('[data-tab]')
+  if (tab) { active = +tab.dataset.tab; return render() }
+  if (e.target.closest('[data-newtab]')) {
+    outputs.push({ name: 'output-' + (outputs.length + 1) + '.pdf', items: [] })
+    active = outputs.length - 1
+    return render()
+  }
+  const rm = e.target.closest('[data-rmrun]')
+  if (rm) {
+    const r = runsOf(outputs[active].items)[+rm.dataset.rmrun]
+    outputs[active].items.splice(r.at, r.pages.length)
+    return render()
+  }
+  const sp = e.target.closest('[data-splitat]')
+  if (sp) {
+    const at = +sp.dataset.splitat
+    const tail = outputs[active].items.splice(at)
+    outputs.splice(active + 1, 0, { name: 'output-' + (outputs.length + 1) + '.pdf', items: tail })
+    return render()
+  }
+})
+
+mountChrome('PDF Assembly', 'by itenium')
+render()
+</script>

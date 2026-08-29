@@ -1,0 +1,99 @@
+/* Tokens follow itenium-be/QRGenerator so the two tools read as one family.
+   Accent is itenium orange instead of QR blue: this tool has no user-chosen colour. */
+:root {
+  color-scheme: light;
+  --paper: #EDEEE9;
+  --surface: #FFF;
+  --sunk: #F5F6F2;
+  --ink: #15161B;
+  --ink-2: #4A4E58;
+  --ink-3: #878C97;
+  --rule: #D9DAD3;
+  --rule-2: #E7E8E2;
+  --accent: #E78200;
+  --accent-ink: #fff;
+  --sel: #2B4BF2;
+  --warn-bg: #FFF8E6;
+  --warn-line: #EBD9A4;
+  --warn-ink: #5D4A12;
+  --ok-bg: #EEF7F1;
+  --ok-line: #B9DCC6;
+  --ok-ink: #1B5E3B;
+  --page: #FFF;
+  --page-dim: 1;
+  --disp: 'Bricolage Grotesque', system-ui, sans-serif;
+  --body: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #101116;
+  --surface: #191A21;
+  --sunk: #14151A;
+  --ink: #E8E9E4;
+  --ink-2: #A8ADB8;
+  --ink-3: #6E7480;
+  --rule: #2B2D36;
+  --rule-2: #23242C;
+  --accent: #F59A2E;
+  --accent-ink: #15161B;
+  --sel: #7C93FF;
+  --warn-bg: #2A2312;
+  --warn-line: #4E421F;
+  --warn-ink: #E2CE93;
+  --ok-bg: #12251A;
+  --ok-line: #24462F;
+  --ok-ink: #9AD3AE;
+  --page-dim: .88;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 450 14px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { margin: 0; font-family: var(--disp); font-weight: 700; letter-spacing: -.02em; line-height: 1.05; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .45; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+.shell { max-width: 1240px; margin: 0 auto; background: var(--surface); border-inline: 1px solid var(--rule); min-height: 100vh; display: flex; flex-direction: column; }
+.appbar { display: flex; align-items: center; gap: 12px; padding: 14px 22px; border-bottom: 1px solid var(--rule); }
+.wordmark { display: flex; align-items: baseline; gap: 9px; }
+.wordmark .mark { width: 21px; height: 21px; flex: none; align-self: center; }
+.wordmark h1 { font-size: 19px; font-weight: 800; }
+.wordmark span { font: 500 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.grow { flex: 1; }
+.eyebrow { font: 500 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.mono { font-family: var(--mono); }
+.hint { color: var(--ink-3); font-size: 12px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 36px; padding: 0 14px;
+  border: 1px solid var(--ink); background: var(--surface); border-radius: 5px; font: 500 13.5px var(--body); white-space: nowrap; }
+.btn:hover:not(:disabled) { background: var(--sunk); }
+.btn-primary { background: var(--ink); color: var(--surface); }
+.btn-primary:hover:not(:disabled) { background: var(--ink-2); }
+.btn-accent { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn-accent:hover:not(:disabled) { filter: brightness(1.06); background: var(--accent); }
+.btn-ghost { border-color: var(--rule); color: var(--ink-2); }
+.btn-sm { height: 30px; padding: 0 10px; font-size: 12.5px; }
+.btn-icon { width: 30px; padding: 0; }
+.btn svg { width: 15px; height: 15px; flex: none; }
+
+.count { display: inline-grid; place-items: center; min-width: 17px; height: 17px; padding: 0 5px; border-radius: 999px;
+  background: var(--accent); color: var(--accent-ink); font: 600 10.5px/1 var(--mono); }
+
+.footer { display: flex; align-items: center; gap: 14px; padding: 14px 22px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-3); }
+.footer a { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.footer a:hover { color: var(--ink); }
+.footer svg { width: 16px; height: 16px; }
+.footer .logo { width: auto; height: 18px; }
+
+/* A page thumbnail: white sheet in both themes, dimmed a touch on dark. */
+.sheet { display: block; width: 100%; aspect-ratio: 1 / 1.414; background: var(--page); border-radius: 2px;
+  filter: brightness(var(--page-dim)); }
+
+@media (max-width: 720px) {
+  .appbar { flex-wrap: wrap; row-gap: 8px; padding: 12px 16px; }
+  .footer { flex-wrap: wrap; row-gap: 8px; padding: 12px 16px; }
+}
