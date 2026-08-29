@@ -6,7 +6,12 @@ Answer what you care about; everything has a default I will run with otherwise.
 
 **A, the workbench**, with B's detail rail on the right. Mockup updated to match; B and C stay in the repo as the record.
 
-## 2. Scope
+## 2. Scope — partly built
+
+Built: merge, reorder (single and multi-page drag), rotate, remove, split, per-output download, undo/redo.
+Not built: images→PDF, replace-a-page, page numbers, watermarks. The rest of this section still stands.
+
+### Original list
 
 The mockups cover merge, reorder, rotate, delete, extract, replace, split. What else is in v1?
 
@@ -47,11 +52,10 @@ Files can't ride in the URL hash the way the QR design does. IndexedDB could hol
 
 **Default:** no persistence. Reload = empty workbench, with a line explaining that the files never left the tab.
 
-## 7. Downloading several outputs
+## 7. Downloading several outputs — answered by the mockup
 
-Split gives n files, and browsers block the second and later sequential downloads.
-
-**Default:** zip them (fflate, ~10 KB) when there is more than one output; a single output downloads as a plain PDF.
+Each output band has its own Download button, so nothing is ever downloaded in bulk and no zip is needed.
+Still open: a "download all" button would need one (fflate, ~10 KB) — worth it?
 
 ## 8. What gets dropped on merge
 
