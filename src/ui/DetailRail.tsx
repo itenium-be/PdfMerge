@@ -65,7 +65,7 @@ export function DetailRail({ pages, docs, outputs, focused, selected, onRotate, 
     <div className="sticky">
       <p className="eyebrow">Page {position} of {output.pages.length}</p>
       <Preview doc={doc} page={page} />
-      <h3>{doc.name}</h3>
+      <h3 title={doc.name}>{doc.name}</h3>
       <dl className="sum">
         <dt>original page</dt><dd>{page.page} of {doc.pageCount}</dd>
         <dt>position</dt><dd>#{position}</dd>

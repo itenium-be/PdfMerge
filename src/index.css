@@ -156,7 +156,8 @@ a { color: inherit; }
 /* ---------- detail rail ---------- */
 .aside { border-left: 1px solid var(--rule); padding: 18px 18px 24px; overflow-y: auto; }
 .aside .sticky { position: sticky; top: 18px; display: flex; flex-direction: column; gap: 12px; }
-.aside h3 { font-size: 17px; font-weight: 800; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.aside h3 { font-size: 17px; font-weight: 800; letter-spacing: -.02em; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
 .aside .empty { color: var(--ink-3); font-size: 12.5px; }
 .stage { border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); padding: 14px;
   background-image: linear-gradient(var(--rule-2) 1px, transparent 1px), linear-gradient(90deg, var(--rule-2) 1px, transparent 1px);
