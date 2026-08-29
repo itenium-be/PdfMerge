@@ -1,6 +1,8 @@
 import type { PDFDocument } from 'pdf-lib'
 import type { PageRef } from '../model/pages'
+import { A4 } from './build'
 import type { Sources } from './build'
+import { sniff } from './kind'
 
 const size = (w: number, h: number) => Math.round(w) + '×' + Math.round(h)
 
@@ -23,14 +25,14 @@ export async function verifyBuild(
 
   const loaded = new Map<string, PDFDocument>()
   for (const docId of new Set(pages.map(p => p.docId))) {
-    loaded.set(docId, await PDFDocument.load(sources[docId]))
+    if (sniff(sources[docId]) === 'pdf') loaded.set(docId, await PDFDocument.load(sources[docId]))
   }
 
   for (const [i, want] of pages.entries()) {
-    const from = loaded.get(want.docId)!.getPages()[want.page - 1]
+    const from = loaded.get(want.docId)?.getPages()[want.page - 1]
     const got = actual[i]
-    const turned = (from.getRotation().angle + want.rot) % 360
-    const expected = size(from.getWidth(), from.getHeight())
+    const turned = ((from?.getRotation().angle ?? 0) + want.rot) % 360
+    const expected = from ? size(from.getWidth(), from.getHeight()) : size(...A4)
     const found = size(got.getWidth(), got.getHeight())
     if (found !== expected) return `Page ${i + 1} is ${found}, expected ${expected}`
     if (got.getRotation().angle % 360 !== turned) {

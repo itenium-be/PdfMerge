@@ -166,7 +166,7 @@ export function App() {
       <input
         ref={picker}
         type="file"
-        accept="application/pdf"
+        accept="application/pdf,image/png,image/jpeg"
         multiple
         hidden
         aria-label="Add PDF files"
@@ -209,7 +209,7 @@ export function App() {
           <div className="box">
             <h2>Drop your PDFs here</h2>
             <p>Merge them, drag the pages into the order you want, cut the stack into separate files.
-              Everything happens in this tab — nothing is uploaded.</p>
+              PNG and JPEG images come in as pages of their own. Everything happens in this tab — nothing is uploaded.</p>
             <div className="zone">
               <button className="btn btn-primary" onClick={pick} disabled={busy}>Choose files</button>
             </div>

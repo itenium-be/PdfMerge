@@ -56,3 +56,35 @@ describe('buildPdf', () => {
     await expect(buildPdf({ a: await source([101]) }, [])).rejects.toThrow(/no pages/i)
   })
 })
+
+/* A real 1×1 PNG and a real 1×1 JPEG: pdf-lib refuses anything it cannot actually decode. */
+const PNG = Uint8Array.from(atob(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+), c => c.charCodeAt(0))
+const JPG = Uint8Array.from(atob(
+  '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AKp//2Q=='
+), c => c.charCodeAt(0))
+
+describe('buildPdf with images', () => {
+  test('gives a PNG a page of its own, A4 sized', async () => {
+    const out = await buildPdf({ img: PNG }, [ref('img', 1)])
+    expect(await widthsOf(out)).toEqual([595])
+    const doc = await PDFDocument.load(out)
+    expect(Math.round(doc.getPages()[0].getHeight())).toBe(842)
+  })
+
+  test('takes a JPEG too', async () => {
+    const out = await buildPdf({ img: JPG }, [ref('img', 1)])
+    expect((await PDFDocument.load(out)).getPageCount()).toBe(1)
+  })
+
+  test('rotates an image page like any other', async () => {
+    const out = await buildPdf({ img: PNG }, [ref('img', 1, { rot: 270 })])
+    expect((await PDFDocument.load(out)).getPages()[0].getRotation().angle).toBe(270)
+  })
+
+  test('mixes image pages and document pages in one file', async () => {
+    const out = await buildPdf({ a: await source([101, 102]), img: PNG }, [ref('a', 2), ref('img', 1), ref('a', 1)])
+    expect(await widthsOf(out)).toEqual([102, 595, 101])
+  })
+})

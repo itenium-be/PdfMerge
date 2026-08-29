@@ -38,3 +38,21 @@ describe('verifyBuild', () => {
     expect(await verifyBuild(sources, [ref('a', 1, { rot: 90 })], built)).toMatch(/rotation/i)
   })
 })
+
+const PNG = Uint8Array.from(atob(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+), c => c.charCodeAt(0))
+
+describe('verifyBuild with images', () => {
+  test('passes an image page that came out A4 sized', async () => {
+    const sources = { img: PNG, a: await source([101]) }
+    const pages = [ref('img', 1), ref('a', 1)]
+    expect(await verifyBuild(sources, pages, await buildPdf(sources, pages))).toBeNull()
+  })
+
+  test('reports an image page that is missing from the output', async () => {
+    const sources = { img: PNG, a: await source([101]) }
+    const built = await buildPdf(sources, [ref('a', 1)])
+    expect(await verifyBuild(sources, [ref('img', 1)], built)).toMatch(/page 1/i)
+  })
+})

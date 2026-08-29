@@ -37,11 +37,15 @@ export function thumbnail(doc: LoadedDoc, pageNumber: number): Promise<string> {
   const key = `${doc.id}:${pageNumber}`
   let pending = thumbs.get(key)
   if (!pending) {
-    pending = render(doc, pageNumber)
+    pending = doc.kind === 'pdf' ? render(doc, pageNumber) : asImage(doc)
     thumbs.set(key, pending)
   }
   return pending
 }
+
+/* An image source is already a picture: it needs a URL, not a renderer. */
+const asImage = async (doc: LoadedDoc) =>
+  URL.createObjectURL(new Blob([doc.bytes as BlobPart], { type: doc.kind === 'png' ? 'image/png' : 'image/jpeg' }))
 
 async function render(doc: LoadedDoc, pageNumber: number): Promise<string> {
   const pdf = await open(doc)

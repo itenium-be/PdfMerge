@@ -63,3 +63,4 @@ export const ScissorsGlyph = () => (
     <path d="M8 8l12 10M8 16 20 6" />
   </svg>
 )
+

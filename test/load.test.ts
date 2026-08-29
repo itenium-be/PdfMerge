@@ -21,9 +21,18 @@ describe('loadDocument', () => {
     expect(a.id).not.toBe(b.id)
   })
 
-  test('says so when the file is not a PDF', async () => {
+  test('says so when the file is neither a PDF nor an image', async () => {
     const file = new File(['just text'], 'notes.txt', { type: 'text/plain' })
-    await expect(loadDocument(file)).rejects.toThrow(/not a pdf/i)
+    await expect(loadDocument(file)).rejects.toThrow(/pdf, png or jpeg/i)
+  })
+
+  test('takes a PNG as a one-page document', async () => {
+    const png = Uint8Array.from(atob(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+    ), c => c.charCodeAt(0))
+    const doc = await loadDocument(new File([png as BlobPart], 'signature.png', { type: 'image/png' }))
+    expect(doc.pageCount).toBe(1)
+    expect(doc.kind).toBe('png')
   })
 
   test('says so when the PDF is password protected', async () => {
