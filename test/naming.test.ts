@@ -1,36 +1,41 @@
 import { describe, expect, test } from 'vitest'
-import { outputName } from '../src/model/naming'
-import type { PageRef } from '../src/model/pages'
+import { outputNames } from '../src/model/naming'
+import type { Output, PageRef } from '../src/model/pages'
 
-const ref = (docId: string, name?: string): PageRef => ({ docId, page: 1, rot: 0, cut: false, name })
+const ref = (docId: string): PageRef => ({ docId, page: 1, rot: 0, cut: false })
+const out = (docIds: string[], name?: string): Output => ({ start: 0, pages: docIds.map(ref), name })
 const names = { a: 'Q3-invoices.pdf', b: 'agreement.pdf' }
 
-describe('outputName', () => {
-  test('keeps the source name when the only output comes from one document', () => {
-    expect(outputName(names, [ref('a'), ref('a')], 0, 1)).toBe('Q3-invoices.pdf')
+describe('outputNames', () => {
+  test('names a single output after the document it starts with', () => {
+    expect(outputNames(names, [out(['a', 'b'])])).toEqual(['Q3-invoices.pdf'])
   })
 
-  test('numbers the parts when one document is split', () => {
-    expect(outputName(names, [ref('a')], 1, 3)).toBe('Q3-invoices-2.pdf')
+  test('numbers the outputs after the first one', () => {
+    expect(outputNames(names, [out(['a']), out(['b']), out(['b'])]))
+      .toEqual(['Q3-invoices.pdf', 'Q3-invoices-2.pdf', 'Q3-invoices-3.pdf'])
   })
 
-  test('calls it merged when an output draws on several documents', () => {
-    expect(outputName(names, [ref('a'), ref('b')], 0, 1)).toBe('merged.pdf')
+  test('follows the first output when it is renamed', () => {
+    expect(outputNames(names, [out(['a'], 'Antwerp'), out(['b'])]))
+      .toEqual(['Antwerp.pdf', 'Antwerp-2.pdf'])
   })
 
-  test('numbers merged parts too', () => {
-    expect(outputName(names, [ref('a'), ref('b')], 2, 3)).toBe('merged-3.pdf')
-  })
-
-  test('uses the name the output was given', () => {
-    expect(outputName(names, [ref('a', 'appendix'), ref('b')], 1, 3)).toBe('appendix.pdf')
+  test('keeps the name an output was given for itself', () => {
+    expect(outputNames(names, [out(['a']), out(['b'], 'appendix'), out(['b'])]))
+      .toEqual(['Q3-invoices.pdf', 'appendix.pdf', 'Q3-invoices-3.pdf'])
   })
 
   test('does not double the extension on a name that already has one', () => {
-    expect(outputName(names, [ref('a', 'appendix.pdf')], 0, 2)).toBe('appendix.pdf')
+    expect(outputNames(names, [out(['a'], 'appendix.pdf'), out(['b'])]))
+      .toEqual(['appendix.pdf', 'appendix-2.pdf'])
   })
 
   test('strips the extension of the source before adding its own', () => {
-    expect(outputName({ a: 'scan.PDF' }, [ref('a')], 0, 2)).toBe('scan-1.pdf')
+    expect(outputNames({ a: 'scan.PDF' }, [out(['a']), out(['a'])])).toEqual(['scan.pdf', 'scan-2.pdf'])
+  })
+
+  test('falls back when the source is gone', () => {
+    expect(outputNames({}, [out(['ghost'])])).toEqual(['merged.pdf'])
   })
 })

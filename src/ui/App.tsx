@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { joinAt, movePages, nameOutput, outputs as toOutputs, removePages, rotatePages, splitBefore } from '../model/pages'
 import type { PageRef } from '../model/pages'
-import { outputName } from '../model/naming'
+import { outputNames } from '../model/naming'
 import { loadDocument } from '../pdf/load'
 import type { LoadedDoc } from '../pdf/load'
 import { buildPdf } from '../pdf/build'
@@ -44,6 +44,7 @@ export function App() {
   const colors = useMemo(() => Object.fromEntries(docs.map((d, i) => [d.id, COLORS[i % COLORS.length]])), [docs])
   const names = useMemo(() => Object.fromEntries(docs.map(d => [d.id, d.name])), [docs])
   const outputs = useMemo(() => toOutputs(pages), [pages])
+  const fileNames = useMemo(() => outputNames(names, outputs), [names, outputs])
 
   const edit = useCallback((next: PageRef[], keep: number[] = []) => {
     setPages(next)
@@ -77,7 +78,7 @@ export function App() {
 
   const download = useCallback(async (index: number) => {
     const output = outputs[index]
-    const name = outputName(names, output.pages, index, outputs.length)
+    const name = fileNames[index]
     setBusy(true)
     try {
       const sources = Object.fromEntries(docs.map(d => [d.id, d.bytes]))
@@ -94,7 +95,7 @@ export function App() {
     } finally {
       setBusy(false)
     }
-  }, [docs, names, outputs])
+  }, [docs, fileNames, outputs])
 
   const remove = useCallback((indices: number[]) => {
     const next = removePages(pages, indices)
@@ -223,7 +224,7 @@ export function App() {
               <section className="output" key={output.start} data-alt={oi % 2}>
                 <div className="band">
                   <OutputTitle
-                    name={outputName(names, output.pages, oi, outputs.length)}
+                    name={fileNames[oi]}
                     onRename={value => edit(nameOutput(pages, output.start, value), selected)}
                   />
                   <span className="range">

@@ -1,18 +1,17 @@
-import type { PageRef } from './pages'
+import type { Output } from './pages'
 
 const base = (name: string) => name.replace(/\.pdf$/i, '')
 
-/** Names one output after the document it came from, or "merged" when it draws on several. */
-export function outputName(
-  docNames: Record<string, string>,
-  pages: readonly PageRef[],
-  index: number,
-  total: number,
-): string {
-  const given = pages[0]?.name?.trim()
-  if (given) return `${base(given)}.pdf`
-
-  const sources = new Set(pages.map(p => p.docId))
-  const stem = sources.size === 1 ? base(docNames[[...sources][0]] ?? 'merged') : 'merged'
-  return total === 1 ? `${stem}.pdf` : `${stem}-${index + 1}.pdf`
+/**
+ * File names for every output at once: the first one sets the stem — its own name if it was
+ * renamed, otherwise the document it starts with — and the splits after it are numbered from it.
+ */
+export function outputNames(docNames: Record<string, string>, outputs: readonly Output[]): string[] {
+  const first = outputs[0]
+  const stem = base(first?.name?.trim() || docNames[first?.pages[0].docId ?? ''] || 'merged')
+  return outputs.map((output, i) => {
+    const given = output.name?.trim()
+    if (given) return `${base(given)}.pdf`
+    return i === 0 ? `${stem}.pdf` : `${stem}-${i + 1}.pdf`
+  })
 }
